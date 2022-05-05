@@ -7,6 +7,10 @@ public class MainClass {
 	public static void main(String[] args) {
 		PersonaDao personaDao = new PersonaDaoImpl();
 		//Listar todas las personas
+		
+		
+		personaDao.insertPersona(new Persona(1,"Pedro",30,"pedro@lospedros.com"));
+		
 		for(Persona persona : personaDao.getTodasLasPersonas()) {
 			System.out.println("Persona: nombre: " + persona.getNombre()
 								+ " id: " + persona.getId());
@@ -18,10 +22,15 @@ public class MainClass {
 		personaDao.updatePersona(persona);
 		
 		//Recuperar un persona
-	    persona = personaDao.getPersona(0);
-	    System.out.println("Persona: nombre: " + persona.getNombre() 
-	    					+ " id: " + persona.getId());
-		
+	    persona = personaDao.getPersona(1);
+	    if(persona!=null) {
+	    	System.out.println("Persona: nombre: " + persona.getNombre() 
+			+ " id: " + persona.getId());
+	    	personaDao.deletePersona(persona);
+	    }
+	    
+	    	
+	
 	}
 
 }

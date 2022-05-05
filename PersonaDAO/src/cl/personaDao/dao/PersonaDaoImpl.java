@@ -1,47 +1,272 @@
 package cl.personaDao.dao;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonaDaoImpl implements PersonaDao {
 
-	//Representa una tabla en base de datos
-	List<Persona> personas;
+
+	Connection conn = null;
 	
 	public PersonaDaoImpl() {
-		personas = new ArrayList<Persona>();
-		//Persona persona1 = new Persona(1,"Juan", 18, "juan@juanes.cl");
-		//Persona persona2 = new Persona(2,"Pedro", 21, "pedro@chile.cl");
-		//personas.add(persona1);
-		//personas.add(persona2);
+		
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (Exception ex) {
+			System.out.println("Driver no instalado, revisar CLASSPATH");
+		}
+
+		try {
+			conn = DriverManager.getConnection(
+					"jdbc:mysql://localhost/personasBD?" + 
+					"user=curso0026&password=curso0026*");
+		} catch (SQLException ex) {
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
 	}
 	//Aquí finaliza la simulación de base de datos
 	
 	@Override
 	public List<Persona> getTodasLasPersonas() {
+
+		List<Persona> personas = new ArrayList<Persona>();
+		Statement stmt = null;
+		ResultSet rs = null;
+		String sqlQuery = "SELECT id,nombre,edad,email "
+						+ "FROM persona order by nombre";
+		try {
+			stmt = conn.createStatement();
+			//rs = stmt.executeQuery(sqlQuery);
+			
+			if (stmt.execute(sqlQuery)) {
+				rs = stmt.getResultSet();
+				while(rs.next()) {
+					Persona persona = new Persona(
+							rs.getInt("id"),
+							rs.getString("nombre"),
+							rs.getInt("edad"),
+							rs.getString("email"));
+					personas.add(persona);
+				}
+			}
+
+		}catch(SQLException ex){
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		finally{
+		    // it is a good idea to release
+		    // resources in a finally{} block
+		    // in reverse-order of their creation
+		    // if they are no-longer needed
+
+		    if (rs != null) {
+		        try {
+		            rs.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        rs = null;
+		    }
+
+		    if (stmt != null) {
+		        try {
+		            stmt.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        stmt = null;
+		    }
+		}
 		return personas;
 	}
 
 	@Override
 	public Persona getPersona(int id) {
-		return personas.get(id);
+		Persona persona = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		String sqlQuery = "SELECT id,nombre,edad,email "
+						+ "FROM persona WHERE id=" + id + "";
+		try {
+			stmt = conn.createStatement();
+			//rs = stmt.executeQuery(sqlQuery);
+			
+			if (stmt.execute(sqlQuery)) {
+				rs = stmt.getResultSet();
+				while(rs.next()) {
+					persona = new Persona(
+						rs.getInt("id"),
+						rs.getString("nombre"),
+						rs.getInt("edad"),
+						rs.getString("email"));
+				}
+			}
+
+		}catch(SQLException ex){
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		finally{
+		    // it is a good idea to release
+		    // resources in a finally{} block
+		    // in reverse-order of their creation
+		    // if they are no-longer needed
+
+		    if (rs != null) {
+		        try {
+		            rs.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        rs = null;
+		    }
+
+		    if (stmt != null) {
+		        try {
+		            stmt.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        stmt = null;
+		    }
+		}
+		if(persona!=null) {
+			return persona;
+		}
+		return null;
 	}
 
 	@Override
 	public void updatePersona(Persona persona) {
-		personas.get(persona.getId()).setNombre(persona.getNombre());;
-		personas.get(persona.getId()).setEmail(persona.getEmail());;
-		personas.get(persona.getId()).setEdad(persona.getEdad());;
+		Statement stmt = null;
+		ResultSet rs = null;
+		String sqlQuery = "UPDATE persona "
+				+ "SET nombre ='" + persona.getNombre() +  "', edad = " + persona.getEdad() + ","
+				+ " email = '" + persona.getEmail() + "'"
+				+ "WHERE id = " + persona.getId();
+		try {
+			stmt = conn.createStatement();
+			stmt.execute(sqlQuery);
+		}catch(SQLException ex){
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		finally{
+		    // it is a good idea to release
+		    // resources in a finally{} block
+		    // in reverse-order of their creation
+		    // if they are no-longer needed
+
+		    if (rs != null) {
+		        try {
+		            rs.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        rs = null;
+		    }
+
+		    if (stmt != null) {
+		        try {
+		            stmt.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        stmt = null;
+		    }
+		}
+
 	}
 
 	@Override
 	public void deletePersona(Persona persona) {
-		personas.remove(persona);
+		Statement stmt = null;
+		ResultSet rs = null;
+		String sqlQuery = "DELETE FROM persona "
+				+ "WHERE id = " + persona.getId();
+		System.out.println(sqlQuery);
+		try {
+			stmt = conn.createStatement();
+			stmt.execute(sqlQuery);
+		}catch(SQLException ex){
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		finally{
+		    // it is a good idea to release
+		    // resources in a finally{} block
+		    // in reverse-order of their creation
+		    // if they are no-longer needed
+
+		    if (rs != null) {
+		        try {
+		            rs.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        rs = null;
+		    }
+
+		    if (stmt != null) {
+		        try {
+		            stmt.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        stmt = null;
+		    }
+		}
 	}
 
 	@Override
 	public void insertPersona(Persona persona) {
-		personas.add(persona);
+		Statement stmt = null;
+		ResultSet rs = null;
+		String sqlQuery = "INSERT persona "
+				+ "VALUES (" + persona.getId() + ", '" + persona.getNombre() +  "', " + persona.getEdad() + ","
+				+ " '" + persona.getEmail() + "')";
+		System.out.println(sqlQuery);
+		try {
+			stmt = conn.createStatement();
+			stmt.execute(sqlQuery);
+		}catch(SQLException ex){
+			// handle any errors
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		finally{
+		    // it is a good idea to release
+		    // resources in a finally{} block
+		    // in reverse-order of their creation
+		    // if they are no-longer needed
+
+		    if (rs != null) {
+		        try {
+		            rs.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        rs = null;
+		    }
+
+		    if (stmt != null) {
+		        try {
+		            stmt.close();
+		        } catch (SQLException sqlEx) { } // ignore
+
+		        stmt = null;
+		    }
+		}
+
 	}
 
 }
