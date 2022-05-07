@@ -1,11 +1,14 @@
 package cl.talentodigital.webproject;
 
 import java.io.IOException;
+import java.util.List;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import cl.personaDao.dao.Persona;
 import cl.personaDao.dao.PersonaDao;
@@ -29,6 +32,14 @@ public class ServletProcess extends HttpServlet {
         // TODO Auto-generated constructor stub
     }
 
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	if(request.getParameter("comando").equalsIgnoreCase("listar")) {
+    		List personas = personaDao.getTodasLasPersonas();
+    		HttpSession session = request.getSession();
+    		session.setAttribute("personas", personas);
+    		response.sendRedirect("personas.jsp");
+    	}
+    }
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -42,6 +53,10 @@ public class ServletProcess extends HttpServlet {
 			personaDao.insertPersona(persona);
 			System.out.println("La persona se ha creado");
 			System.out.println(personaDao.getTodasLasPersonas().get(0).getNombre());
+			
+			response.sendRedirect("personas.jsp");
+			//TODO ver enviar comando con forward
+			//request.getServletContext().getRequestDispatcher("process").forward(request, response)
 		}
 	}
 
